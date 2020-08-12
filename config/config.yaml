@@ -1,3 +1,5 @@
 mask_detection:
   MODEL_PATH: mask/models/face_mask_detection.tflite
-  
+human_detection:
+  COCO_INP_SIZE: 300
+  MOBILENET_SSD_PATH: human/models/mobilenet_ssd_v2_coco_quant_postprocess.tflite
