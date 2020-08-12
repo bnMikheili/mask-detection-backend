@@ -1,6 +1,28 @@
 import numpy as np
 import os
 import cv2
+import tensorflow as tf
+
+
+def load_tflite_model(tf_model_path):
+    """
+    Loads tflite model from a given path
+
+    Args:
+        tf_model_path (str): Path to the model
+
+    Returns:
+        (interpreter, input_details, output_details):
+        tf.lite.Interpreter, interpreter's input and output details
+    """
+    # Load the tfline model and allocate tensors
+    interpreter = tf.lite.Interpreter(model_path=tf_model_path)
+    interpreter.allocate_tensors()
+    # Get input and output tensors.
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    return interpreter, input_details, output_details
+
 
 def decode_bbox(anchors, raw_outputs, variances=[0.1, 0.1, 0.2, 0.2]):
     """
