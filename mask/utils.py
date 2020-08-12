@@ -344,6 +344,9 @@ def draw_results(
         if class_id == 0:
             color = (0, 255, 0)
 
+        else:
+            color = (255, 0, 0)
+
         if blur:
             image[ymin:ymax, xmin:xmax] = cv2.blur(
                 image[ymin:ymax, xmin:xmax], (40, 40))
