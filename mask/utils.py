@@ -257,3 +257,99 @@ def get_anchor_ratios():
     """
     anchor_ratios = [[1, 0.62, 0.42]] * 5
     return anchor_ratios
+
+
+def write_output_video(vid, output_video_name):
+    """
+    Creates a video writer
+
+    Args:
+        vid (cv2.VideoCapture object): video capture
+        output_video_name (str): name of the output video file
+
+    Returns:
+        (cv2.VideoWriter): writer ?describe
+    """
+    height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+    fps = int(vid.get(cv2.CAP_PROP_FPS))
+    codec = cv2.VideoWriter_fourcc(*'XVID')
+    writer = cv2.VideoWriter(output_video_name, codec, fps, (width, height))
+    return writer
+
+
+def check_directory(directory_name):
+    """
+    Checks if the given directory exists, and if not
+        it creates a new directory.
+
+    Args:
+        directory_name (str)
+
+    Returns:
+        None
+    """
+    if not os.path.exists(directory_name):
+        print("""The directory you are looking for it doesn't exist,
+            creating a new one..""")
+        os.mkdir(directory_name)
+    else:
+        print("The directory already exists, moving on..")
+
+
+def draw_results(
+   idxs,
+   image,
+   bbox_max_scores,
+   bbox_max_score_classes,
+   y_bboxes,
+   blur = True
+   ):
+    """
+    Draw object bounding boxes, object classes, and confidence scores for
+    indices needed for NMS.
+
+    Args:
+        idxs (list): List with bounding box indices needed for NMS
+        image (np.array): 3D numpy array of input image
+        bbox_max_scores (list): List of max class scores per bbox
+        bbox_max_score_classes (list): List with classes per bbox
+        y_bboxes (np.array): Bbox coordinates
+        blur (bool): Flag for blurring the face
+
+    Returns:
+        (list): List of tuples ([xmin, ymin, xmax, ymax], class_id)
+    """
+    id2class = {0: 'Mask', 1: 'NoMask'}
+    height, width, _ = image.shape
+    boxes = []
+
+    # for each list of bbox indices needed for NMS,
+    # we compute a confidence interval,
+    # and draw object bboxes
+    for idx in idxs:
+        conf = float(bbox_max_scores[idx])
+        class_id = bbox_max_score_classes[idx]
+        bbox = y_bboxes[idx]
+
+        # clip the coordinate, avoid the value exceed the image boundary.
+        xmin = max(0, int(bbox[0] * width))
+        ymin = max(0, int(bbox[1] * height))
+        xmax = min(int(bbox[2] * width), width)
+        ymax = min(int(bbox[3] * height), height)
+        box = ([xmin, ymin, xmax, ymax], class_id)
+        boxes.append(box)
+
+        # when wearing mask
+        if class_id == 0:
+            color = (0, 255, 0)
+
+        if blur:
+            image[ymin:ymax, xmin:xmax] = cv2.blur(
+                image[ymin:ymax, xmin:xmax], (40, 40))
+
+        cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
+        cv2.putText(image, "%s: %.2f" % (id2class[class_id], conf),
+                    (xmin + 2, ymin - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color)
+
+    return boxes
