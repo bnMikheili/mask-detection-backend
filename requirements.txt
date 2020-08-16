@@ -1,9 +1,18 @@
 absl-py==0.9.0
+aiohttp==3.6.2
+aioice==0.6.18
+aiortc==0.9.28
 astroid==2.4.2
 astunparse==1.6.3
+async-timeout==3.0.1
+attrs==19.3.0
+av==8.0.2
 cachetools==4.1.1
 certifi==2020.6.20
+cffi==1.14.1
 chardet==3.0.4
+crc32c==2.0.1
+cryptography==3.0
 gast==0.3.3
 google-auth==1.20.1
 google-auth-oauthlib==0.4.1
@@ -17,6 +26,8 @@ Keras-Preprocessing==1.1.2
 lazy-object-proxy==1.4.3
 Markdown==3.2.2
 mccabe==0.6.1
+multidict==4.7.6
+netifaces==0.10.9
 numpy==1.18.5
 oauthlib==3.1.0
 opencv-python==4.4.0.40
@@ -25,6 +36,9 @@ Pillow==7.2.0
 protobuf==3.12.4
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pycparser==2.20
+pyee==7.0.2
+pylibsrtp==0.6.6
 pylint==2.5.3
 PyYAML==5.3.1
 requests==2.24.0
@@ -39,7 +53,9 @@ tensorflow-estimator==2.3.0
 termcolor==1.1.0
 toml==0.10.1
 typed-ast==1.4.1
+typing-extensions==3.7.4.2
 urllib3==1.25.10
 Werkzeug==1.0.1
 wrapt==1.12.1
+yarl==1.5.1
 zipp==3.1.0
