@@ -47,12 +47,8 @@ def decode_bbox(anchors, raw_outputs, variances=[0.1, 0.1, 0.2, 0.2]):
 
     raw_outputs_rescale = raw_outputs * np.array(variances)
 
-    predict_center_x = raw_outputs_rescale[
-                                       :,
-                                       :, 0:1] * anchors_w + anchor_centers_x
-    predict_center_y = raw_outputs_rescale[
-                                       :,
-                                       :, 1:2] * anchors_h + anchor_centers_y
+    predict_center_x = raw_outputs_rescale[:, :, 0:1] * anchors_w + anchor_centers_x
+    predict_center_y = raw_outputs_rescale[:, :, 1:2] * anchors_h + anchor_centers_y
     predict_w = np.exp(raw_outputs_rescale[:, :, 2:3]) * anchors_w
     predict_h = np.exp(raw_outputs_rescale[:, :, 3:]) * anchors_h
     predict_xmin = predict_center_x - predict_w / 2
@@ -60,7 +56,8 @@ def decode_bbox(anchors, raw_outputs, variances=[0.1, 0.1, 0.2, 0.2]):
     predict_xmax = predict_center_x + predict_w / 2
     predict_ymax = predict_center_y + predict_h / 2
     predict_bbox = np.concatenate(
-        [predict_xmin, predict_ymin, predict_xmax, predict_ymax], axis=-1)
+        [predict_xmin, predict_ymin, predict_xmax, predict_ymax], axis=-1
+    )
 
     return predict_bbox
 
@@ -85,10 +82,12 @@ def generate_anchors(feature_map_sizes, anchor_sizes, anchor_ratios):
     # generates anchors for each feature_map_size, generating centers of each
     # anchor and the X,Y coordinates in relation with the center
     for idx, feature_size in enumerate(feature_map_sizes):
-        cx = (np.linspace(0, feature_size[0] - 1,
-                          feature_size[0]) + 0.5) / feature_size[0]
-        cy = (np.linspace(0, feature_size[1] - 1,
-                          feature_size[1]) + 0.5) / feature_size[1]
+        cx = (
+            np.linspace(0, feature_size[0] - 1, feature_size[0]) + 0.5
+        ) / feature_size[0]
+        cy = (
+            np.linspace(0, feature_size[1] - 1, feature_size[1]) + 0.5
+        ) / feature_size[1]
 
         cx_grid, cy_grid = np.meshgrid(cx, cy)
         cx_grid_expend = np.expand_dims(cx_grid, axis=-1)
@@ -110,7 +109,8 @@ def generate_anchors(feature_map_sizes, anchor_sizes, anchor_ratios):
             width = scale * np.sqrt(ratio)
             height = scale / np.sqrt(ratio)
             anchor_width_heights.extend(
-                [-width / 2.0, -height / 2.0, width / 2.0, height / 2.0])
+                [-width / 2.0, -height / 2.0, width / 2.0, height / 2.0]
+            )
 
         #  run on the first scale, with different aspect ratios
         #  (except for the first one)
@@ -119,7 +119,8 @@ def generate_anchors(feature_map_sizes, anchor_sizes, anchor_ratios):
             width = scale_1 * np.sqrt(ratio)
             height = scale_1 / np.sqrt(ratio)
             anchor_width_heights.extend(
-                [-width / 2.0, -height / 2.0, width / 2.0, height / 2.0])
+                [-width / 2.0, -height / 2.0, width / 2.0, height / 2.0]
+            )
 
         bbox_coords = center_tile + np.array(anchor_width_heights)
         bbox_coords_reshape = bbox_coords.reshape((-1, 4))
@@ -130,11 +131,8 @@ def generate_anchors(feature_map_sizes, anchor_sizes, anchor_ratios):
 
 
 def single_class_non_max_suppression(
-   bboxes,
-   confidences,
-   conf_thresh=0.2,
-   iou_thresh=0.5,
-   keep_top_k=-1):
+    bboxes, confidences, conf_thresh=0.2, iou_thresh=0.5, keep_top_k=-1
+):
     """
     Do Non Max Suppresssion on single class.
     For the specific class, given the bbox and its confidence,
@@ -203,11 +201,11 @@ def single_class_non_max_suppression(
         overlap_h = np.maximum(0, overlap_ymax - overlap_ymin)
         overlap_area = overlap_w * overlap_h
 
-        overlap_ratio = overlap_area / \
-            (area[idxs[:last]] + area[i] - overlap_area)
+        overlap_ratio = overlap_area / (area[idxs[:last]] + area[i] - overlap_area)
 
         need_to_be_deleted_idx = np.concatenate(
-            ([last], np.where(overlap_ratio > iou_thresh)[0]))
+            ([last], np.where(overlap_ratio > iou_thresh)[0])
+        )
 
         idxs = np.delete(idxs, need_to_be_deleted_idx)
 
@@ -226,12 +224,12 @@ def get_feature_map_sizes(type):
     Returns:
         (list): feature_map_sizes
     """
-    if type == 'tf':
+    if type == "tf":
         feature_map_sizes = [[33, 33], [17, 17], [9, 9], [5, 5], [3, 3]]
-    elif type == 'pt':
+    elif type == "pt":
         feature_map_sizes = [[45, 45], [23, 23], [12, 12], [6, 6], [4, 4]]
     else:
-        print('Incorrect type')
+        print("Incorrect type")
 
     return feature_map_sizes
 
@@ -243,8 +241,13 @@ def get_anchor_sizes():
     Returns:
         (list): anchor_sizes
     """
-    anchor_sizes = [[0.04, 0.056], [0.08, 0.11],
-                    [0.16, 0.22], [0.32, 0.45], [0.64, 0.72]]
+    anchor_sizes = [
+        [0.04, 0.056],
+        [0.08, 0.11],
+        [0.16, 0.22],
+        [0.32, 0.45],
+        [0.64, 0.72],
+    ]
     return anchor_sizes
 
 
@@ -273,7 +276,7 @@ def write_output_video(vid, output_video_name):
     height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
     width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
     fps = int(vid.get(cv2.CAP_PROP_FPS))
-    codec = cv2.VideoWriter_fourcc(*'XVID')
+    codec = cv2.VideoWriter_fourcc(*"XVID")
     writer = cv2.VideoWriter(output_video_name, codec, fps, (width, height))
     return writer
 
@@ -290,21 +293,18 @@ def check_directory(directory_name):
         None
     """
     if not os.path.exists(directory_name):
-        print("""The directory you are looking for it doesn't exist,
-            creating a new one..""")
+        print(
+            """The directory you are looking for it doesn't exist,
+            creating a new one.."""
+        )
         os.mkdir(directory_name)
     else:
         print("The directory already exists, moving on..")
 
 
 def draw_results(
-   idxs,
-   image,
-   bbox_max_scores,
-   bbox_max_score_classes,
-   y_bboxes,
-   blur = True
-   ):
+    idxs, image, bbox_max_scores, bbox_max_score_classes, y_bboxes, blur=True
+):
     """
     Draw object bounding boxes, object classes, and confidence scores for
     indices needed for NMS.
@@ -320,7 +320,7 @@ def draw_results(
     Returns:
         (list): List of tuples ([xmin, ymin, xmax, ymax], class_id)
     """
-    id2class = {0: 'Mask', 1: 'NoMask'}
+    id2class = {0: "Mask", 1: "NoMask"}
     height, width, _ = image.shape
     boxes = []
 
@@ -349,10 +349,17 @@ def draw_results(
 
         if blur:
             image[ymin:ymax, xmin:xmax] = cv2.blur(
-                image[ymin:ymax, xmin:xmax], (40, 40))
+                image[ymin:ymax, xmin:xmax], (40, 40)
+            )
 
         cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
-        cv2.putText(image, "%s: %.2f" % (id2class[class_id], conf),
-                    (xmin + 2, ymin - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color)
+        cv2.putText(
+            image,
+            "%s: %.2f" % (id2class[class_id], conf),
+            (xmin + 2, ymin - 2),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            color,
+        )
 
     return boxes

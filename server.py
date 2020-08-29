@@ -1,41 +1,23 @@
 import asyncio
-import os
+import websockets
 import json
-from aiohttp import web
-
 from server.ConnectionContainer import ConnectionContainer
 
-
-ROOT = os.path.dirname(__file__)
-routes = web.RouteTableDef()
-
+# Create container
 connection_container = ConnectionContainer()
 
+# WebSocket server
+async def server(websocket, path):
+    # Take request parse and send message back.
+    async for message in websocket:
+        params = json.loads(message)
 
-async def on_shutdown():
-    pass
+        # Taking video streaminga sdp
+        answer = await connection_container.handle_offer(sdp=params["sdp"])
+        await websocket.send(answer.sdp)
 
 
-@routes.get('/')
-async def index(request):
-    content = open(os.path.join(ROOT, "server/public/index.html"), "r").read()
-    return web.Response(content_type="text/html", text=content)
-
-
-@routes.post('/offer')
-async def offer(request):
-    params = await request.json()
-
-    answer = await connection_container.handle_offer(sdp=params["sdp"])
-
-    return web.Response(content_type='application/json',
-                        body=json.dumps({"sdp": answer.sdp, "type": "answer"})
-                        )
-
-if __name__ == '__main__':
-    app = web.Application()
-    app.on_shutdown.append(on_shutdown)
-
-    app.add_routes(routes)
-    app.add_routes([web.static('/', ROOT + 'server/public')])
-    web.run_app(app, port=3000)
+# Start websocket server
+start_server = websockets.serve(server, "localhost", 5000)
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()

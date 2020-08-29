@@ -8,7 +8,7 @@ def import_config_data_full():
     Returns:
         (dict): dictionary of all conf data
     """
-    with open('config/config.yaml') as config_file:
+    with open("config/config.yaml") as config_file:
         config_data = yaml.load(config_file, Loader=yaml.FullLoader)
     return config_data
 

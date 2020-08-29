@@ -4,9 +4,9 @@ from server.OpenCVStreamTrack import OpenCVStreamTrack
 
 
 def register_handlers(connection):
-    @connection.on('track')
+    @connection.on("track")
     def on_track(track):
-        print('track received')
+        print("track received")
         print(type(track))
         transformed_track = OpenCVStreamTrack(track)
         connection.addTrack(transformed_track)
@@ -22,11 +22,10 @@ class ConnectionContainer:
         self.connections.append(connection)
         register_handlers(connection)
 
-        offer = RTCSessionDescription(sdp, type='offer')
+        offer = RTCSessionDescription(sdp, type="offer")
         await connection.setRemoteDescription(offer)
 
         answer = await connection.createAnswer()
         await connection.setLocalDescription(answer)
 
         return answer
-

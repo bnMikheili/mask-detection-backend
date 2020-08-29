@@ -19,14 +19,15 @@ async function startDeliveringMedia(){
 
     // create offer:
     const offer = await connection.createOffer();
+    console.log(offer)
     await connection.setLocalDescription(offer)
 }
 
 async function mediaReceived(event){
     video.srcObject = event.streams[0]
 }
-
 async function iceCandidate(event){
+
     if(!event.candidate){
         console.log("ice gathering finished.");
 
@@ -41,8 +42,6 @@ async function iceCandidate(event){
 
         const answer = await response.json();
         await connection.setRemoteDescription(answer);
-
-
-
     }
+
 }
